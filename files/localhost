@@ -1,0 +1,43 @@
+proxy_cache_path /tmp/NGINX_cache/ keys_zone=backcache:10m;
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+upstream ui_cluster {
+    server 127.0.0.1:5001;
+}
+
+upstream api_cluster {
+    server 127.0.0.1:5000;
+}
+
+server {
+
+    listen 80;
+    server_name 127.0.0.1;
+
+    location / {
+
+        proxy_pass http://ui_cluster;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-NginX-Proxy true;
+        proxy_ssl_session_reuse off;
+        proxy_cache backcache;
+    }
+
+    location /api/ {
+
+        proxy_pass http://api_cluster/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-NginX-Proxy true;
+        proxy_ssl_session_reuse off;
+        proxy_cache backcache;
+    }
+
+}

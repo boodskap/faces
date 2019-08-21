@@ -1,6 +1,9 @@
 # Faces
 Simple REST API service to detect faces and quality of the uploaded images
 
+# Run as Docker container
+docker run -p 5000:5000 boodskapiot/faces:latest
+
 # Usage
 
 curl -F "file=@/path/to/your/image" http://localhost:5000/predict

@@ -1,0 +1,23 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ml-node.js"
+  },
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.2",
+    "cookie-parser": "^1.4.3",
+    "cookie-session": "^2.0.0-beta.3",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "express-layout": "^0.1.0",
+    "express-minify": "^1.0.0",
+    "html-screen-capture-js": "^1.0.10",
+    "node-minify": "^3.1.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {}
+}

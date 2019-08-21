@@ -105,3 +105,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+
+
+# IDEs and editors
+/.idea
+/ui/.idea
+/ui/node_modules
+
+

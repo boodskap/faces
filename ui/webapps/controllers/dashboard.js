@@ -14,7 +14,7 @@ function uploadFile(f) {
     $(".processingImage").html('<i class="fa fa-spinner fa-spin"></i> processing image. please wait...')
 
     $(".resultDiv").html('');
-    $(".resultImage").html('<div class="col-md-12 text-center m-0"><img src="" id="resultImage" /></div>');
+    $(".resultImage").html('<div class="col-md-12 m-0 p-0"><img src="" id="resultImage" /></div>');
 
     var fileInput = document.getElementById("imgFile");
 
@@ -27,7 +27,7 @@ function uploadFile(f) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
 
-            if (xhr.status === 200) {
+            if (xhr.status === 200){
                 var result = JSON.parse(xhr.response);
 
                 loadResult(result);
@@ -53,20 +53,39 @@ function uploadFile(f) {
 function loadResult(data) {
     var str = `
     <div class="col-md-6">
-        <div class="progress progressBar">
-            <div class="progress-bar bg-success" role="progressbar" style="width: `+Math.round(data.quality)+`%" aria-valuenow="Math.round(data.quality)" aria-valuemin="0" aria-valuemax="100"></div>
+        <h5><u>`+data.faces+` Face's</u> Found!</h5>
+        <div class="progress progressbar">
+            <div class="progress-bar bg-success" role="progressbar" style="width: `+Math.round(data.quality)+`%" aria-valuenow="`+Math.round(data.quality)+`" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
     <div class="col-md-1">
+        <small>Quality</small>
        <h3>`+data.quality.toFixed(3)+`%</h3>
-    </div>
-    <div class="col-md-12">
-        <h5><u>`+data.faces+` Face's</u> Found!</h5>
     </div>
    
     `
     $(".processingImage").html('');
     $(".resultDiv").html(str);
+
+    var resultdata = data.boxes;
+
+    for (var i = 0; i < resultdata.length; i++) {
+
+        var cordinates = resultdata[i];
+
+        $(".resultImage").append('<div class="overlay overlay_' + i + '"></div>')
+
+        $(".overlay_" + i).css({
+            'top': cordinates.y + 'px',
+            'left': cordinates.x + 'px',
+            'height': (cordinates.ey - cordinates.y) + 'px',
+            'width': (cordinates.ex - cordinates.x) + 'px',
+            'border': '2px dashed red',
+            'position': 'absolute'
+
+        })
+
+    }
 }
 
 

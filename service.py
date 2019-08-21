@@ -20,11 +20,6 @@ faceCascade = cv2.CascadeClassifier("files/haarcascade_frontalface_default.xml")
 # AGGD fit model, takes input as the MSCN Image / Pair-wise Product
 def AGGDfit(structdis):
     # variables to count positive pixels / negative pixels and their squared sum
-    poscount = 0
-    negcount = 0
-    possqsum = 0
-    negsqsum = 0
-    abssum = 0
 
     poscount = len(structdis[structdis > 0])  # number of positive pixels
     negcount = len(structdis[structdis < 0])  # number of negative pixels
@@ -66,7 +61,7 @@ def func(gam, prevgamma, prevdiff, sampling, rhatnorm):
     while (gam < 10):
         r_gam = tgamma(2 / gam) * tgamma(2 / gam) / (tgamma(1 / gam) * tgamma(3 / gam))
         diff = abs(r_gam - rhatnorm)
-        if (diff > prevdiff): break
+        if (diff > prevdiff) : break
         prevdiff = diff
         prevgamma = gam
         gam += sampling
@@ -215,7 +210,7 @@ def detect_faces(image):
     return faces
 
 
-@app.route('/predict', methods=['POST'])
+@app.route('/detect', methods=['POST'])
 def do_detection():
     file = request.files['file']
     uid = uuid.uuid1()
@@ -239,16 +234,16 @@ def do_detection():
 
     os.remove(image)
 
-    return json.dumps(result)
+    return json.dumps(result),200,{'content-type':'application/json'}
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-lh', '--host', required=False, help = 'listen_host [0.0.0.0]')
-ap.add_argument('-lp', '--port', required=False, help = 'listen_port 5000')
+ap.add_argument('-lh', '--host', required=False, help='listen_host [0.0.0.0]')
+ap.add_argument('-lp', '--port', required=False, help='listen_port 5000')
 args = ap.parse_args()
 
 listen_host = '0.0.0.0'
-listen_port = 5000;
+listen_port = 5000
 
 if args.host is not None:
     listen_host = str(args.host)

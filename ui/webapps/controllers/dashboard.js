@@ -2,7 +2,14 @@ $(document).ready(function () {
     var liveContainer = $('#liveContainer');
 
     liveContainer.userCam({
-        start: function (event, video) { }
+        start: function (event, video) {
+            $(".fileDrag").removeClass('col-md-12').addClass('col-md-8');
+            $(".webCam").css('display','block')
+        },
+        error: function (message) {
+            $(".fileDrag").addClass('col-md-12');
+            $(".webCam").css('display','none')
+        }
     });
 
 });

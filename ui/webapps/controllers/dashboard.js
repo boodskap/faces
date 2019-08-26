@@ -21,13 +21,17 @@ function uploadFile(f) {
     $(".processingImage").html('<i class="fa fa-spinner fa-spin"></i> processing image. please wait...')
     rData = {};
     $(".resultDiv").html('');
-    $(".resultImage").html('<div class="col-md-12 m-0 p-0"><img src="" id="resultImage" /></div>');
+    $(".resultImage").html('<div class="col-md-9 m-0 p-0">' +
+        '<div class="imgBlock" style="max-height: 500px;overflow: auto;padding:0px;position: relative;"><img src="" id="resultImage" /></div></div>' +
+        '<div class="col-md-3"><div class="row cropImage" style="max-height:500px;overflow: auto "></div> </div>');
 
     var fileInput = document.getElementById("imgFile");
 
     var files = fileInput.files;
 
     var file = f ? f :files[0];
+
+    file = camBlob ? camBlob : files[0]
 
     readURL(file);
     var xhr = new XMLHttpRequest();
@@ -48,7 +52,23 @@ function uploadFile(f) {
             errorMsg('Error in image upload!');
         }
     };
-    xhr.open('POST', '/api/detect', true);
+
+    var queryParam = '?';
+
+    if($("#paddingx").val()){
+        queryParam += 'px='+$("#paddingx").val();
+    }
+    if($("#paddingy").val()){
+        queryParam += '&py='+$("#paddingy").val();
+    }
+    if($("#paddingw").val()){
+        queryParam += '&pw='+$("#paddingw").val();
+    }
+    if($("#paddingh").val()){
+        queryParam += '&ph='+$("#paddingh").val();
+    }
+
+    xhr.open('POST', '/api/cropdetect'+queryParam, true);
     var formData = new FormData();
     formData.append("file", file, file.name ? file.name : 'image');
     xhr.send(formData);
@@ -58,7 +78,31 @@ function uploadFile(f) {
 
 
 function loadResult(data) {
+
     rData=data;
+
+    // Quality between 65 - 70 is moderate
+    // Quality between 71-75 is good
+    // Quality between 76-80 is very good
+    // Quality between 81 - 90 is perfect
+    // 91+ is excellent
+
+    var quality = data.quality;
+
+    if(quality >= 65 && quality <71){
+        quality = '<a href="javascript:void(0)" class="m-link m-link--state m-link--warning">Moderate</a>'
+    }else if(quality >= 71 && quality < 76){
+        quality = '<a href="javascript:void(0)" class="m-link m-link--state m-link--info">Good</a>'
+    }else if(quality >= 76 && quality < 81){
+        quality = '<a href="javascript:void(0)" class="m-link m-link--state m-link--success">Very Good</a>'
+    }else if(quality >= 81 && quality < 91){
+        quality = '<a href="javascript:void(0)" class="m-link m-link--state m-link--success">Perfect</a>'
+    }else if(quality >= 91){
+        quality = '<a href="javascript:void(0)" class="m-link m-link--state m-link--success">Excellent</a>'
+    }else{
+        quality = '<a href="javascript:void(0)" class="m-link m-link--state m-link--danger">Bad</a>'
+    }
+
     var str = `
     <div class="col-md-6">
         <h5><u>`+data.faces+` Face's</u> Found!</h5>
@@ -66,9 +110,9 @@ function loadResult(data) {
             <div class="progress-bar bg-success" role="progressbar" style="width: `+Math.round(data.quality)+`%" aria-valuenow="`+Math.round(data.quality)+`" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-4">
         <small>Quality</small>
-       <h3>`+data.quality.toFixed(3)+`%</h3>
+       <h3>`+quality+` <small style="font-weight: 600">(`+data.quality.toFixed(3)+`%)</small></h3>
     </div>
     <div class="col-md-2">
         <small>Result JSON</small><br>
@@ -79,12 +123,20 @@ function loadResult(data) {
     $(".resultDiv").html(str);
 
     var resultdata = data.boxes;
+    var regions = data.regions;
 
+    $(".cropImage").html('')
+
+    for (var i = 0; i < regions.length; i++) {
+
+        $(".cropImage").append("<div class='col-md-6'><img class='card-img img-thumbnail' src='data:image/png;base64, "+regions[i]+"' height='75' /></div>")
+    }
     for (var i = 0; i < resultdata.length; i++) {
 
         var cordinates = resultdata[i];
-
-        $(".resultImage").append('<div class="overlay overlay_' + i + '"></div>')
+        var img = "<img class='card-img img-thumbnail' src='data:image/png;base64, "+regions[i]+"' width='150' />"
+        var popover = 'data-container="body" data-toggle="m-popover" data-html="true" data-placement="right" data-content="'+img+'" data-original-title="" title=""'
+        $(".resultImage .imgBlock").append('<div class="overlay overlay_' + i + '" '+popover+'></div>')
 
         $(".overlay_" + i).css({
             'top': cordinates.y + 'px',
@@ -96,7 +148,26 @@ function loadResult(data) {
 
         })
 
+        $('[data-toggle="m-popover"]').each(function() {
+            initPopoverImg($(this));
+        });
+
     }
+}
+
+var initPopoverImg = function(el) {
+    var skin = el.data('skin') ? 'm-popover--skin-' + el.data('skin') : '';
+    var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
+
+    el.popover({
+        trigger: triggerValue,
+        template: '\
+            <div class="m-popover ' + skin + ' popover" role="tooltip">\
+                <div class="arrow"></div>\
+                <h3 class="popover-header"></h3>\
+                <div class="popover-body"></div>\
+            </div>'
+    });
 }
 
 var rData = {};
@@ -142,12 +213,13 @@ function unhighlight(e) {
 
 function handleDrop(e) {
     var dt = e.dataTransfer
-    var files = dt.files
+    var files = dt.files;
+    camBlob = null;
     uploadFile(files[0])
 }
-
+var camBlob = null;
 function liveCapture() {
-
+    camBlob = null;
 
     var liveContainer = $('#liveContainer');
 
@@ -159,7 +231,7 @@ function liveCapture() {
     fetch(dataURI)
         .then(res => res.blob())
         .then(blob => {
-
+            camBlob = blob;
 
            uploadFile(blob)
         })

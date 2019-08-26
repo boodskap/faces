@@ -55,6 +55,56 @@
                     </div>
                     <div class="m-portlet__body">
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group m-form__group">
+                                            <label for="paddingx">
+                                                Left
+                                            </label>
+                                            <input type="number" class="form-control m-input m-input--air m-input--pill" id="paddingx" min="0" value="10">
+                                            <small>Padding X</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group m-form__group">
+                                            <label for="paddingy">
+                                                Top
+                                            </label>
+                                            <input type="number" class="form-control m-input m-input--air m-input--pill" id="paddingy" min="0" value="15">
+                                            <small>Padding Y</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group m-form__group">
+                                            <label for="paddingw">
+                                                Right
+                                            </label>
+                                            <input type="number" class="form-control m-input m-input--air m-input--pill" id="paddingw" min="0" value="10">
+                                            <small>Padding Width</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group m-form__group">
+                                            <label for="paddingh">
+                                                Bottom
+                                            </label>
+                                            <input type="number" class="form-control m-input m-input--air m-input--pill" id="paddingh" min="0" value="15">
+                                            <small>Padding Height</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group m-form__group">
+                                            <label for="paddingh">
+                                                Crop Deduct
+                                            </label>
+                                           <button class="form-control btn btn-outline-primary" onclick="uploadFile()">Appy</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
                             <div class="col-md-12 fileDrag">
                                 <div id="drop-area">
                                     <form class="my-form">
@@ -67,7 +117,7 @@
                                 <div class="form-group" style="margin-top: 20px;text-align: center">
 
                                     <input type="file" style="display: none" id="imgFile"
-                                           onchange="uploadFile()"/>
+                                           onchange="camBlob = null;uploadFile()"/>
                                 </div>
                             </div>
                             <div class="col-md-4 webCam" style="text-align: center;display: none">
@@ -86,7 +136,7 @@
                         <div class="row mt-5 resultDiv">
 
                         </div>
-                        <div class="row mt-2 resultImage" style="max-height: 500px;overflow: auto;padding:0px;position: relative;background-color: #eee">
+                        <div class="row mt-2 resultImage" style="">
 
                         </div>
                     </div>
@@ -95,8 +145,6 @@
 
 
         </div>
-
-
     </div>
 </div>
 

@@ -53,10 +53,10 @@ function uploadFile(f) {
         }
     };
 
-    var queryParam = '?';
+    var queryParam = '?model='+$("#faceModel").val();
 
     if($("#paddingx").val()){
-        queryParam += 'px='+$("#paddingx").val();
+        queryParam += '&px='+$("#paddingx").val();
     }
     if($("#paddingy").val()){
         queryParam += '&py='+$("#paddingy").val();

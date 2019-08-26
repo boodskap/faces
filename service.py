@@ -9,7 +9,7 @@ from flask import Flask, request
 import argparse
 import uuid
 import os
-
+import base64
 
 app = Flask(__name__)
 
@@ -61,7 +61,7 @@ def func(gam, prevgamma, prevdiff, sampling, rhatnorm):
     while (gam < 10):
         r_gam = tgamma(2 / gam) * tgamma(2 / gam) / (tgamma(1 / gam) * tgamma(3 / gam))
         diff = abs(r_gam - rhatnorm)
-        if (diff > prevdiff) : break
+        if (diff > prevdiff): break
         prevdiff = diff
         prevgamma = gam
         gam += sampling
@@ -138,10 +138,9 @@ def compute_features(img):
 
 # function to calculate BRISQUE quality score
 # takes input of the image path
-def test_measure_BRISQUE(imgPath):
+def test_measure_BRISQUE(dis):
     # read image from given path
-    dis = cv2.imread(imgPath, 1)
-    if (dis is None):
+    if dis is None:
         print("Wrong image path given")
         print("Exiting...")
         sys.exit(0)
@@ -195,7 +194,6 @@ def test_measure_BRISQUE(imgPath):
 
 def detect_faces(image):
     # Read the image
-    image = cv2.imread(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image
@@ -212,29 +210,103 @@ def detect_faces(image):
 
 @app.route('/detect', methods=['POST'])
 def do_detection():
+    padx = request.args.get("px", 0, type=int)
+    pady = request.args.get("py", 0, type=int)
+    padex = request.args.get("pw", 0, type=int)
+    padey = request.args.get("ph", 0, type=int)
     file = request.files['file']
     uid = uuid.uuid1()
-    image = "tmp/" + uid.hex + file.filename
-    file.save(image);
+    impath = "tmp/" + uid.hex + file.filename
+    file.save(impath)
+    image = cv2.imread(impath)
+    height, width, channels = image.shape
 
-    print("Predicting image {} ".format(image))
+    print("Predicting image {} ".format(impath))
 
     quality = (100 - test_measure_BRISQUE(image))
     faces = detect_faces(image)
     boxes = []
 
     for (x, y, w, h) in faces:
-        box = {"x": int(x), "y": int(y), "ex": int(x+w), "ey": int(y+h)}
+        px = int(x - padx)
+        py = int(y - pady)
+        pex = int(x + w + padex)
+        pey = int(y + h + padey)
+        if px < 0:
+            px = 0
+        if py < 0:
+            py = 0
+        if pex > width:
+            pex = width
+        if pey > height:
+            pey = height
+        box = {"x": px, "y": py, "ex": pex, "ey": pey}
         boxes.append(box)
+
     result = {
         "quality": quality,
         "faces": len(faces),
         "boxes": boxes
     }
 
-    os.remove(image)
+    os.remove(impath)
 
-    return json.dumps(result),200,{'content-type':'application/json'}
+    return json.dumps(result), 200, {'content-type': 'application/json'}
+
+
+@app.route('/cropdetect', methods=['POST'])
+def do_crop_detection():
+    padx = request.args.get("px", 0, type=int)
+    pady = request.args.get("py", 0, type=int)
+    padex = request.args.get("pw", 0, type=int)
+    padey = request.args.get("ph", 0, type=int)
+    file = request.files['file']
+    uid = uuid.uuid1()
+    impath = "tmp/" + uid.hex + file.filename
+    file.save(impath)
+    image = cv2.imread(impath)
+    height, width, channels = image.shape
+
+    print("Predicting image {} ".format(impath))
+
+    quality = (100 - test_measure_BRISQUE(image))
+    faces = detect_faces(image)
+    boxes = []
+    regions = []
+
+    for (x, y, w, h) in faces:
+        px = int(x - padx)
+        py = int(y - pady)
+        pex = int(x + w + padex)
+        pey = int(y + h + padey)
+        if px < 0:
+            px = 0
+        if py < 0:
+            py = 0
+        if pex > width:
+            pex = width
+        if pey > height:
+            pey = height
+        box = {"x": px, "y": py, "ex": pex, "ey": pey}
+        roi = image[py:pey, px:pex]
+        fpath = "tmp/" + uid.hex + ".jpg"
+        cv2.imwrite(fpath, roi)
+        with open(fpath, "rb") as imageFile:
+            encoded = base64.b64encode(imageFile.read()).decode('ascii')
+            regions.append(encoded)
+            os.remove(fpath)
+        boxes.append(box)
+
+    result = {
+        "quality": quality,
+        "faces": len(faces),
+        "boxes": boxes,
+        "regions": regions
+    }
+
+    os.remove(impath)
+
+    return json.dumps(result), 200, {'content-type': 'application/json'}
 
 
 ap = argparse.ArgumentParser()

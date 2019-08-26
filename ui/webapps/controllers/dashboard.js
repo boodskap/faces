@@ -129,7 +129,7 @@ function loadResult(data) {
 
     for (var i = 0; i < regions.length; i++) {
 
-        $(".cropImage").append("<div class='col-md-6'><img class='card-img img-thumbnail' src='data:image/png;base64, "+regions[i]+"' height='75' /></div>")
+        $(".cropImage").append("<div class='col-md-6 text-center mt-2'><img class='card-img img-thumbnail' src='data:image/png;base64, "+regions[i]+"' style='width:75px;height:75px' /></div>")
     }
     for (var i = 0; i < resultdata.length; i++) {
 

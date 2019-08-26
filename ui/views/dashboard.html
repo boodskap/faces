@@ -103,32 +103,20 @@
 <script src="/js/jquery.userCam.min.js"></script>
 <script src="/controllers/dashboard.js"></script>
 
-<div id="imgModal" class="modal fade" tabindex="-1" role="dialog">
+<div id="resultModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document" style="max-width:60%">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title muid"></h4>
+                <h4 class="modal-title">Result JSON</h4>
                 <button type="button" class="btn btn-default btn-xs" data-dismiss="modal" aria-label="Close" style="position: absolute;right: 5px;top: 11px;"><i class="la la-close"></i></button>
-
-                <button onclick="toggleModal()" class="btn btn-default btn-xs" style="position: absolute;right: 58px;top: 11px;"><i class="la la-arrows"></i></button>
-
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="processingImage"></div>
-                        <div class="resultTable"></div>
-                        <div style="position: relative;overflow: auto;max-height: 500px;" class="overlayplate">
-
-                            <img src="" class="resultImage"/>
-                        </div>
+                        <pre style="height: 300px;overflow: auto;" id="resultJson"></pre>
                     </div>
-
                 </div>
             </div>
-            <!--<div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>-->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

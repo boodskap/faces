@@ -19,7 +19,7 @@ $(document).ready(function () {
 function uploadFile(f) {
 
     $(".processingImage").html('<i class="fa fa-spinner fa-spin"></i> processing image. please wait...')
-
+    rData = {};
     $(".resultDiv").html('');
     $(".resultImage").html('<div class="col-md-12 m-0 p-0"><img src="" id="resultImage" /></div>');
 
@@ -58,6 +58,7 @@ function uploadFile(f) {
 
 
 function loadResult(data) {
+    rData=data;
     var str = `
     <div class="col-md-6">
         <h5><u>`+data.faces+` Face's</u> Found!</h5>
@@ -65,11 +66,14 @@ function loadResult(data) {
             <div class="progress-bar bg-success" role="progressbar" style="width: `+Math.round(data.quality)+`%" aria-valuenow="`+Math.round(data.quality)+`" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
-    <div class="col-md-1">
+    <div class="col-md-2">
         <small>Quality</small>
        <h3>`+data.quality.toFixed(3)+`%</h3>
     </div>
-   
+    <div class="col-md-2">
+        <small>Result JSON</small><br>
+       <a href="javascript:void(0)" onclick="openDataModal()">view data</a>
+    </div>
     `
     $(".processingImage").html('');
     $(".resultDiv").html(str);
@@ -95,6 +99,11 @@ function loadResult(data) {
     }
 }
 
+var rData = {};
+function openDataModal(){
+    $("#resultJson").html(JSON.stringify(rData,null,2))
+    $("#resultModal").modal('show')
+}
 
 
 // ************************ Drag and drop ***************** //

@@ -14,7 +14,12 @@ import base64
 app = Flask(__name__)
 
 model = svmutil.svm_load_model("files/allmodel")
-faceCascade = cv2.CascadeClassifier("files/haarcascade_frontalface_default.xml")
+cascades = {
+    'ff': cv2.CascadeClassifier("files/haarcascade_frontalface_default.xml"),
+    'up': cv2.CascadeClassifier("files/haarcascade_upperbody.xml"),
+    'mup': cv2.CascadeClassifier("files/haarcascade_mcs_upperbody.xml"),
+    'pp': cv2.CascadeClassifier("files/haarcascade_profileface.xml")
+}
 
 
 # AGGD fit model, takes input as the MSCN Image / Pair-wise Product
@@ -192,12 +197,12 @@ def test_measure_BRISQUE(dis):
     return qualityscore
 
 
-def detect_faces(image):
+def detect_faces(model, image):
     # Read the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image
-    faces = faceCascade.detectMultiScale(
+    faces = cascades[model].detectMultiScale(
         gray,
         scaleFactor=1.1,
         minNeighbors=5,
@@ -210,6 +215,7 @@ def detect_faces(image):
 
 @app.route('/detect', methods=['POST'])
 def do_detection():
+    mname = request.args.get("model", "ff")
     padx = request.args.get("px", 0, type=int)
     pady = request.args.get("py", 0, type=int)
     padex = request.args.get("pw", 0, type=int)
@@ -224,7 +230,7 @@ def do_detection():
     print("Predicting image {} ".format(impath))
 
     quality = (100 - test_measure_BRISQUE(image))
-    faces = detect_faces(image)
+    faces = detect_faces(mname, image)
     boxes = []
 
     for (x, y, w, h) in faces:
@@ -256,6 +262,7 @@ def do_detection():
 
 @app.route('/cropdetect', methods=['POST'])
 def do_crop_detection():
+    mname = request.args.get("model", "ff")
     padx = request.args.get("px", 0, type=int)
     pady = request.args.get("py", 0, type=int)
     padex = request.args.get("pw", 0, type=int)
@@ -270,7 +277,7 @@ def do_crop_detection():
     print("Predicting image {} ".format(impath))
 
     quality = (100 - test_measure_BRISQUE(image))
-    faces = detect_faces(image)
+    faces = detect_faces(mname, image)
     boxes = []
     regions = []
 
